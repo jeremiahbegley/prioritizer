@@ -9,9 +9,9 @@ def open_connection():
     cur = conn.cursor()
     return conn, cur
 
-def get_item_info(cursor, schema, key):
-    query_string = f"SELECT * FROM {schema} WHERE key = ?"
-    data = cursor.execute(query_string,(key,))
+def get_item_info(cursor, schema, key_nm, item_key):
+    query_string = f"SELECT * FROM {schema} WHERE {key_nm} = ?"
+    data = cursor.execute(query_string,(item_key,))
     return data.fetchall()[0]
 
 def get_k():
@@ -24,8 +24,8 @@ def get_keys(cursor, schema):
         keys.append(elem[0])
     return keys
 
-def get_random_keys(keys):
-    return random.sample(keys,2)
+def get_random_keys(item_keys):
+    return random.sample(item_keys,2)
 
 def get_expected_points(ra, rb):
     ea = (1/(1+10**((rb-ra)/400)))
@@ -62,11 +62,12 @@ def assign_results(user_input):
         return 0.0,1.0
     else:
         return 0.5,0.5
-    
-def generate_delete_insert_queries(schema, key, values):
-    delete_query = f'DELETE FROM {schema} WHERE key = "{key}"'
-    insert_query = f'INSERT INTO {schema}(key, alias, elo_rating, comparison_ct, last_change_dt) VALUES {values}'
-    return delete_query, insert_query
+
+'''May delete this at the end''' 
+# def generate_delete_insert_queries(schema, key_nm, item_key, values):
+#     delete_query = f'DELETE FROM {schema} WHERE {key_nm} = "{item_key}"'
+#     insert_query = f'INSERT INTO {schema}(key, alias, elo_rating, comparison_ct, last_change_dt) VALUES {values}'
+#     return delete_query, insert_query
 
 def write_to_database(connection, cursor, queries):
     for q in queries:
