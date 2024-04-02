@@ -77,6 +77,7 @@ def write_to_database(connection, cursor, queries):
     return True
 
 running = True
+print('Running update_quam_delete branch version! Make sure to delete upon merge!') 
 while running:
     print('Please:')
     print('PRESS 1 for task prioritization')
@@ -99,11 +100,12 @@ while running:
         session_schema = 'legenda'
     elif choice==5:
         session_schema = 'visa_elo_cordelia'
+    elif choice==6:
+        session_schema = 'prioritizer_tester'
     else:
         break
 
-    while True:
-        print('Running update_quam_delete branch version! Make sure to delete upon merge!')    
+    while True:   
         conn, global_cursor = open_connection()
         session_k = get_k()
         session_date = datetime.date.today().strftime('%Y-%m-%d')
