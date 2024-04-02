@@ -77,7 +77,6 @@ def write_to_database(connection, cursor, queries):
     return True
 
 running = True
-print('Running update_quam_delete branch version! Make sure to delete upon merge!') 
 while running:
     print('Please:')
     print('PRESS 1 for task prioritization')
@@ -85,7 +84,7 @@ while running:
     print('PRESS 3 to rank movies you have already seen')
     print('PRESS 4 to to manage your backlog of books to read')
     print('PRESS 5 if you are Cordelia')
-    print('PRESS 6 to test the program')
+    #print('PRESS 6 to test the program')
     print('PRESS 0 to exit the program')
 
     choice = user_chooser(6)
@@ -108,9 +107,7 @@ while running:
     while True:   
         conn, global_cursor = open_connection()
         session_k = get_k()
-        print(session_k)
         session_date = datetime.date.today().strftime('%Y-%m-%d')
-        print(session_date)
         session_keys = get_keys(global_cursor, session_schema)
         a_key,b_key = get_random_keys(session_keys)
         a,ra,ca = get_item_info(global_cursor,session_schema,'key',a_key)[1:4]
