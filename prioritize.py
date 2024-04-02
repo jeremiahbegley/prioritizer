@@ -70,12 +70,6 @@ def generate_update_query(schema, key_nm, item_key, elo_rating, comparison_ct, l
     last_change_dt = {last_change_dt}
     WHERE {key_nm} = {item_key};'''
 
-'''May delete this at the end'''
-# def generate_delete_insert_queries(schema, key_nm, item_key, values):
-#     delete_query = f'DELETE FROM {schema} WHERE {key_nm} = "{item_key}"'
-#     insert_query = f'INSERT INTO {schema}(key, alias, elo_rating, comparison_ct, last_change_dt) VALUES {values}'
-#     return delete_query, insert_query
-
 def write_to_database(connection, cursor, queries):
     for q in queries:
         cursor.execute(q)
@@ -90,9 +84,10 @@ while running:
     print('PRESS 3 to rank movies you have already seen')
     print('PRESS 4 to to manage your backlog of books to read')
     print('PRESS 5 if you are Cordelia')
+    print('PRESS 6 to test the program')
     print('PRESS 0 to exit the program')
 
-    choice = user_chooser(5)
+    choice = user_chooser(6)
 
     if choice==1:
         session_schema = 'agenda'
@@ -107,15 +102,16 @@ while running:
     else:
         break
 
-    while True:    
+    while True:
+        print('Running update_quam_delete branch version! Make sure to delete upon merge!')    
         conn, global_cursor = open_connection()
         session_k = get_k()
         session_date = datetime.date.today().strftime('%Y-%m-%d')
         #session_schema = 'movies_to_see'
         session_keys = get_keys(global_cursor, session_schema)
         a_key,b_key = get_random_keys(session_keys)
-        a,ra,ca = get_item_info(global_cursor,session_schema,a_key)[1:4]
-        b,rb,cb = get_item_info(global_cursor,session_schema,b_key)[1:4]
+        a,ra,ca = get_item_info(global_cursor,session_schema,'key',a_key)[1:4]
+        b,rb,cb = get_item_info(global_cursor,session_schema,'key',b_key)[1:4]
         ea,eb = get_expected_points(ra,rb)
         present_options(a,b)
         user_input = user_chooser(4)
@@ -127,7 +123,7 @@ while running:
         new_rb = calculate_new_rating(rb,eb,sb,session_k)
         print(f'{a} is now at {new_ra}')
         print(f'{b} is now at {new_rb}')
-        a_delete, a_insert = generate_delete_insert_queries(session_schema, a_key, (a_key,a,new_ra,ca+1,session_date))
-        b_delete, b_insert = generate_delete_insert_queries(session_schema, b_key, (b_key,b,new_rb,cb+1,session_date))
-        write_to_database(conn,global_cursor,[a_delete,b_delete,a_insert,b_insert])
+        a_update = generate_update_query(session_schema, 'key', a_key, new_ra, ca+1, session_date)
+        b_update = generate_update_query(session_schema, 'key', b_key, new_rb, cb+1, session_date)
+        write_to_database(conn,global_cursor,[a_update,b_update])
         conn.close()
