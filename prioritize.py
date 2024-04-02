@@ -9,9 +9,9 @@ def open_connection():
     cur = conn.cursor()
     return conn, cur
 
-def get_item_info(cursor, schema, key):
-    query_string = f"SELECT * FROM {schema} WHERE key = ?"
-    data = cursor.execute(query_string,(key,))
+def get_item_info(cursor, schema, key_nm, item_key):
+    query_string = f"SELECT * FROM {schema} WHERE {key_nm} = ?"
+    data = cursor.execute(query_string,(item_key,))
     return data.fetchall()[0]
 
 def get_k():
@@ -24,8 +24,8 @@ def get_keys(cursor, schema):
         keys.append(elem[0])
     return keys
 
-def get_random_keys(keys):
-    return random.sample(keys,2)
+def get_random_keys(item_keys):
+    return random.sample(item_keys,2)
 
 def get_expected_points(ra, rb):
     ea = (1/(1+10**((rb-ra)/400)))
@@ -62,11 +62,13 @@ def assign_results(user_input):
         return 0.0,1.0
     else:
         return 0.5,0.5
-    
-def generate_delete_insert_queries(schema, key, values):
-    delete_query = f'DELETE FROM {schema} WHERE key = "{key}"'
-    insert_query = f'INSERT INTO {schema}(key, alias, elo_rating, comparison_ct, last_change_dt) VALUES {values}'
-    return delete_query, insert_query
+
+def generate_update_query(schema, key_nm, item_key, elo_rating, comparison_ct, last_change_dt):
+    return f'''UPDATE {schema}
+    SET elo_rating = {elo_rating},
+    comparison_ct = {comparison_ct},
+    last_change_dt = '{last_change_dt}'
+    WHERE {key_nm} = {item_key};'''
 
 def write_to_database(connection, cursor, queries):
     for q in queries:
@@ -82,9 +84,10 @@ while running:
     print('PRESS 3 to rank movies you have already seen')
     print('PRESS 4 to to manage your backlog of books to read')
     print('PRESS 5 if you are Cordelia')
+    #print('PRESS 6 to test the program')
     print('PRESS 0 to exit the program')
 
-    choice = user_chooser(5)
+    choice = user_chooser(6)
 
     if choice==1:
         session_schema = 'agenda'
@@ -96,18 +99,19 @@ while running:
         session_schema = 'legenda'
     elif choice==5:
         session_schema = 'visa_elo_cordelia'
+    elif choice==6:
+        session_schema = 'prioritizer_tester'
     else:
         break
 
-    while True:    
+    while True:   
         conn, global_cursor = open_connection()
         session_k = get_k()
         session_date = datetime.date.today().strftime('%Y-%m-%d')
-        #session_schema = 'movies_to_see'
         session_keys = get_keys(global_cursor, session_schema)
         a_key,b_key = get_random_keys(session_keys)
-        a,ra,ca = get_item_info(global_cursor,session_schema,a_key)[1:4]
-        b,rb,cb = get_item_info(global_cursor,session_schema,b_key)[1:4]
+        a,ra,ca = get_item_info(global_cursor,session_schema,'key',a_key)[1:4]
+        b,rb,cb = get_item_info(global_cursor,session_schema,'key',b_key)[1:4]
         ea,eb = get_expected_points(ra,rb)
         present_options(a,b)
         user_input = user_chooser(4)
@@ -119,7 +123,7 @@ while running:
         new_rb = calculate_new_rating(rb,eb,sb,session_k)
         print(f'{a} is now at {new_ra}')
         print(f'{b} is now at {new_rb}')
-        a_delete, a_insert = generate_delete_insert_queries(session_schema, a_key, (a_key,a,new_ra,ca+1,session_date))
-        b_delete, b_insert = generate_delete_insert_queries(session_schema, b_key, (b_key,b,new_rb,cb+1,session_date))
-        write_to_database(conn,global_cursor,[a_delete,b_delete,a_insert,b_insert])
+        a_update = generate_update_query(session_schema, 'key', a_key, new_ra, ca+1, session_date)
+        b_update = generate_update_query(session_schema, 'key', b_key, new_rb, cb+1, session_date)
+        write_to_database(conn,global_cursor,[a_update,b_update])
         conn.close()
