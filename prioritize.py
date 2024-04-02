@@ -68,7 +68,7 @@ def generate_update_query(schema, key_nm, item_key, elo_rating, comparison_ct, l
     SET elo_rating = {elo_rating},
     comparison_ct = {comparison_ct},
     last_change_dt = '{last_change_dt}'
-    WHERE {key_nm} = {item_key};'''
+    WHERE {key_nm} = '{item_key}';'''
 
 def write_to_database(connection, cursor, queries):
     for q in queries:
