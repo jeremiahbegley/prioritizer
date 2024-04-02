@@ -63,7 +63,14 @@ def assign_results(user_input):
     else:
         return 0.5,0.5
 
-'''May delete this at the end''' 
+def generate_update_query(schema, key_nm, item_key, elo_rating, comparison_ct, last_change_dt):
+    return f'''UPDATE {schema}
+    SET elo_rating = {elo_rating},
+    comparison_ct = {comparison_ct},
+    last_change_dt = {last_change_dt}
+    WHERE {key_nm} = {item_key};'''
+
+'''May delete this at the end'''
 # def generate_delete_insert_queries(schema, key_nm, item_key, values):
 #     delete_query = f'DELETE FROM {schema} WHERE {key_nm} = "{item_key}"'
 #     insert_query = f'INSERT INTO {schema}(key, alias, elo_rating, comparison_ct, last_change_dt) VALUES {values}'
