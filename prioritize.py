@@ -67,7 +67,7 @@ def generate_update_query(schema, key_nm, item_key, elo_rating, comparison_ct, l
     return f'''UPDATE {schema}
     SET elo_rating = {elo_rating},
     comparison_ct = {comparison_ct},
-    last_change_dt = {last_change_dt}
+    last_change_dt = '{last_change_dt}'
     WHERE {key_nm} = {item_key};'''
 
 def write_to_database(connection, cursor, queries):
@@ -108,8 +108,9 @@ while running:
     while True:   
         conn, global_cursor = open_connection()
         session_k = get_k()
+        print(session_k)
         session_date = datetime.date.today().strftime('%Y-%m-%d')
-        #session_schema = 'movies_to_see'
+        print(session_date)
         session_keys = get_keys(global_cursor, session_schema)
         a_key,b_key = get_random_keys(session_keys)
         a,ra,ca = get_item_info(global_cursor,session_schema,'key',a_key)[1:4]
