@@ -84,10 +84,11 @@ while running:
     print('PRESS 3 to rank movies you have already seen')
     print('PRESS 4 to to manage your backlog of books to read')
     print('PRESS 5 if you are Cordelia')
+    print('PRESS 9 to rank 99.9 The Buzz songs')
     #print('PRESS 6 to test the program')
     print('PRESS 0 to exit the program')
 
-    choice = user_chooser(6)
+    choice = user_chooser(9)
 
     if choice==1:
         session_schema = 'agenda'
@@ -101,6 +102,8 @@ while running:
         session_schema = 'visa_elo_cordelia'
     elif choice==6:
         session_schema = 'prioritizer_tester'
+    elif choice==9:
+        session_schema = 'buzz_elo'
     else:
         break
 
